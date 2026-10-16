@@ -1,98 +1,98 @@
-# Biglietteria Compagnia di Navigazione
+# Ferry Company Ticketing System
 
-Sistema di prenotazione biglietti per una compagnia di navigazione, sviluppato come progetto d'esame per il corso di **Ingegneria del Software** (Laurea Triennale in Ingegneria Informatica, Università di Napoli Federico II).
+Ticket booking system for a ferry company, developed as an exam project for the **Software Engineering** course (Bachelor's Degree in Computer Engineering, University of Naples Federico II).
 
-Il progetto implementa il flusso di prenotazione di un biglietto (passeggero o autoveicolo) per una corsa via mare, con calcolo del prezzo, verifica della disponibilità posti e generazione della ricevuta di prenotazione.
+The project implements the booking flow for a ferry crossing (passenger or vehicle ticket), including price calculation, seat/space availability checks, and booking receipt generation.
 
-> Progetto nato come lavoro di gruppo a 3 persone; portato avanti e completato da solo dopo l'abbandono degli altri due componenti del gruppo.
+> Originally a 3-person group project; carried on and completed solo after the other two group members dropped out.
 
-> **Nota**: questa è una demo universitaria piuttosto datata (a.a. 2022/2023), realizzata a scopo didattico per dimostrare l'applicazione del pattern Boundary-Control-Entity e del processo di analisi/progettazione OO in un contesto d'esame. Non rispecchia le pratiche di sviluppo moderne (niente framework, gestione basilare delle credenziali, nessuna validazione production-ready): oggi, per un progetto simile, si userebbero soluzioni più moderne (es. Spring Boot, un ORM, autenticazione vera). Il codice applicativo è rimasto fedele alla versione originale d'esame.
+> **Note**: this is a fairly old university demo (academic year 2022/2023), built for teaching purposes to demonstrate the Boundary-Control-Entity pattern and the OO analysis/design process in an exam context. It does not reflect modern development practices (no framework, basic credential handling, no production-ready validation): today, a similar project would use more modern solutions (e.g. Spring Boot, an ORM, real authentication). The application code has been kept faithful to the original exam version.
 
-## Stack tecnico
+## Tech stack
 
 - **Java** (JDBC)
 - **MySQL 8**
-- Pattern architetturale **Boundary-Control-Entity (BCE)**
-- **Docker** / **Docker Compose** per l'esecuzione (aggiunti successivamente alla versione d'esame, per rendere il progetto eseguibile da chiunque senza installare nulla)
+- **Boundary-Control-Entity (BCE)** architectural pattern
+- **Docker** / **Docker Compose** to run it (added later, on top of the exam version, to make the project runnable by anyone without installing anything)
 
-## Come avviare il progetto
+## How to run the project
 
-Serve solo **Docker** installato. Dalla cartella del progetto:
+You only need **Docker** installed. From the project folder:
 
 ```bash
 docker compose up -d db
 docker compose run --rm app
 ```
 
-Il primo comando avvia MySQL e inizializza automaticamente lo schema del database (tabelle + dati di esempio) tramite [`schema.sql`](schema.sql). Il secondo compila ed esegue l'applicazione in un container, con il menu a console direttamente nel terminale.
+The first command starts MySQL and automatically initializes the database schema (tables + sample data) via [`schema.sql`](schema.sql). The second one builds and runs the application in a container, with the console menu available right in your terminal.
 
-Per fermare tutto:
+To stop everything:
 
 ```bash
 docker compose down
 ```
 
-Aggiungi `-v` per cancellare anche i dati del database (utile per ripartire da zero con i dati di esempio "freschi", dato che la data delle corse seminate è quella del giorno in cui il database viene creato).
+Add `-v` to also wipe the database data (useful to start fresh with "today's" sample data, since the seeded rides are dated to the day the database was created).
 
-### Provare una prenotazione
+### Trying out a booking
 
-Esempio di flusso con i dati di esempio inclusi:
+Example flow using the included sample data:
 
 ```
-1                 -> PrenotaBiglietto
-passeggero        -> (oppure autoveicolo)
-<data odierna>    -> formato aaaa-MM-gg
-10:00             -> orario corsa seminata (Napoli -> Palermo)
+1                 -> PrenotaBiglietto (Book a ticket)
+passeggero        -> (or autoveicolo for a vehicle)
+<today's date>    -> format yyyy-MM-dd
+10:00             -> time of the seeded ride (Naples -> Palermo)
 Napoli
 Palermo
-S                 -> conferma pagamento
+S                 -> confirm payment
 ```
 
-È presente anche una seconda corsa di esempio (Napoli → Capri, ore 15:30, aliscafo).
+A second sample ride is also included (Naples → Capri, 15:30, hydrofoil).
 
-### Esplorare il database con Adminer
+### Exploring the database with Adminer
 
-Il `docker-compose.yml` include anche [Adminer](https://www.adminer.org/), un client MySQL via browser, per ispezionare tabelle e dati senza installare nulla:
+`docker-compose.yml` also includes [Adminer](https://www.adminer.org/), a browser-based MySQL client, to inspect tables and data without installing anything:
 
 ```bash
 docker compose up -d db adminer
 ```
 
-Poi apri [http://localhost:8081](http://localhost:8081) e accedi con:
+Then open [http://localhost:8081](http://localhost:8081) and log in with:
 
-| Campo | Valore |
+| Field | Value |
 |---|---|
-| Sistema | MySQL |
+| System | MySQL |
 | Server | `db` |
-| Utente | `root` |
+| Username | `root` |
 | Password | `root` |
 | Database | `gestionebiglietteria` |
 
-## Struttura del progetto
+## Project structure
 
 ```
 BiglietteriaCompagniaNavigazione/src/
-├── boundary/   interfaccia utente a console
-├── control/    logica applicativa
-├── database/   DAO, accesso al database
-├── entity/     entità di dominio
-└── exception/  eccezioni applicative
-schema.sql          schema del database + dati di esempio
-docker-compose.yml  orchestrazione MySQL + app + Adminer
-Dockerfile           build multi-stage dell'applicazione Java
-TreUominiEUnProgetto.pdf   relazione del progetto (analisi, progettazione, diagrammi UML)
+├── boundary/   console-based user interface
+├── control/    application logic
+├── database/   DAOs, database access
+├── entity/     domain entities
+└── exception/  application exceptions
+schema.sql          database schema + sample data
+docker-compose.yml  MySQL + app + Adminer orchestration
+Dockerfile           multi-stage build of the Java application
+TreUominiEUnProgetto.pdf   project report (analysis, design, UML diagrams)
 ```
 
-## Fix applicati rispetto alla versione d'esame
+## Fixes applied compared to the exam version
 
-La versione consegnata per l'esame **non includeva Docker**: era un semplice progetto Eclipse che si aspettava un database MySQL già creato manualmente in locale, senza alcuno script di setup né un modo rapido per essere eseguito da altri. Per renderlo eseguibile da chiunque con un singolo comando, sono stati aggiunti:
+The version submitted for the exam **did not include Docker**: it was a plain Eclipse project that expected a MySQL database already created manually on the local machine, with no setup script and no quick way to run it elsewhere. To make it runnable by anyone with a single command, the following were added:
 
-- `Dockerfile` e `docker-compose.yml`, per containerizzare applicazione e database (build multi-stage, non serve Java installato localmente)
-- `schema.sql`, lo schema del database ricostruito analizzando le query nelle classi DAO (il progetto originale non ne includeva uno) con relativi dati di esempio
-- il servizio **Adminer**, per ispezionare il database da browser senza installare client esterni
+- `Dockerfile` and `docker-compose.yml`, to containerize the application and the database (multi-stage build, no local Java install needed)
+- `schema.sql`, the database schema reconstructed by analyzing the queries in the DAO classes (the original project didn't include one), with sample data
+- the **Adminer** service, to inspect the database from a browser without installing external clients
 
-Non sono state apportate altre modifiche alla logica applicativa o al design originale del progetto.
+No other changes were made to the application logic or the original design of the project.
 
-## Documentazione
+## Documentation
 
-L'analisi completa del progetto (casi d'uso, diagrammi delle classi, di sequenza, E-R) è disponibile nella relazione: [`TreUominiEUnProgetto.pdf`](TreUominiEUnProgetto.pdf).
+The full project analysis (use cases, class diagrams, sequence diagrams, ER diagram) is available in the report: [`TreUominiEUnProgetto.pdf`](TreUominiEUnProgetto.pdf).
